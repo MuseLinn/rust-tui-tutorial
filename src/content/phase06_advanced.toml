@@ -1,0 +1,86 @@
+id = "phase06_advanced"
+title = "Phase 6: 进阶专题"
+description = "Smart pointers, concurrency, async/await"
+
+[[lessons]]
+id = "l16_smart"
+title = "Smart Pointers"
+content_md = """
+# Smart Pointers
+
+- `Box<T>` — heap allocation, known size
+- `Rc<T>` — reference counting for shared ownership (single-threaded)
+- `Arc<T>` — atomically reference counted (multi-threaded)
+- `RefCell<T>` — runtime borrow checking
+
+```rust
+let b = Box::new(5);
+println!("{}", b);
+```
+"""
+
+[lessons.exercise]
+id = "e16_smart"
+instructions = "Create a `Box<i32>` containing the value `5` and print it."
+starter_code = "fn main() {\n    let b = _____;\n    println!(\"{}\", b);\n}"
+hints = ["Use `Box::new(5)`"]
+validation = { type = "must_compile_with_output", param = "5" }
+
+[[lessons]]
+id = "l17_concurrency"
+title = "Concurrency"
+content_md = """
+# Concurrency
+
+Rust's ownership system prevents data races at compile time:
+
+```rust
+use std::thread;
+use std::sync::mpsc;
+
+let (tx, rx) = mpsc::channel();
+thread::spawn(move || {
+    tx.send(String::from("hi")).unwrap();
+});
+
+let received = rx.recv().unwrap();
+```
+
+`move` closures transfer ownership to the new thread.
+"""
+
+[lessons.exercise]
+id = "e17_concurrency"
+instructions = "Spawn a thread that prints `hello from a thread`."
+starter_code = "use std::thread;\n\nfn main() {\n    _____\n}"
+hints = ["Use `thread::spawn(|| { println!(\"hello from a thread\"); }).join().unwrap();`"]
+validation = { type = "must_contain_pattern", param = "thread::spawn" }
+
+[[lessons]]
+id = "l18_async"
+title = "Async / Await"
+content_md = """
+# Async / Await
+
+Rust uses `async` / `.await` for asynchronous programming:
+
+```rust
+async fn hello() {
+    println!("hello");
+}
+
+#[tokio::main]
+async fn main() {
+    hello().await;
+}
+```
+
+An `async fn` returns a `Future`. You need a runtime like Tokio to execute it.
+"""
+
+[lessons.exercise]
+id = "e18_async"
+instructions = "Call the async function `say_hi` using `.await` inside an async main."
+starter_code = "#[tokio::main]\nasync fn main() {\n    say_hi(_____);\n}\n\nasync fn say_hi() {\n    println!(\"hi\");\n}"
+hints = ["Add `.await` after `say_hi()`"]
+validation = { type = "must_contain_pattern", param = "\\.await" }

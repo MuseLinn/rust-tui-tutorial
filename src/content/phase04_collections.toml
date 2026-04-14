@@ -1,0 +1,66 @@
+id = "phase04_collections"
+title = "Phase 4: 标准库与错误处理"
+description = "Collections and error handling with Option/Result"
+
+[[lessons]]
+id = "l10_collections"
+title = "Collections"
+content_md = """
+# Collections
+
+The three most common collections:
+
+```rust
+let mut v = vec![1, 2, 3];
+v.push(4);
+
+let mut s = String::from("hello");
+s.push_str(" world");
+
+let mut scores = HashMap::new();
+scores.insert("Alice", 10);
+```
+
+Remember: `String` is owned and mutable; `&str` is a borrowed slice.
+"""
+
+[lessons.exercise]
+id = "e10_collections"
+instructions = "Push the number `4` into the vector and print its length."
+starter_code = "fn main() {\n    let mut v = vec![1, 2, 3];\n    _____\n    println!(\"{}\", v.len());\n}"
+hints = ["Use `v.push(4);`"]
+validation = { type = "must_compile_with_output", param = "4" }
+
+[[lessons]]
+id = "l11_error"
+title = "Error Handling"
+content_md = """
+# Error Handling
+
+Rust has no exceptions. It uses `Result<T, E>`:
+
+```rust
+enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+The `?` operator propagates errors automatically:
+
+```rust
+fn read_file() -> Result<String, std::io::Error> {
+    let content = std::fs::read_to_string("file.txt")?;
+    Ok(content)
+}
+```
+
+**Anti-pattern**: avoid `unwrap()` in production code.
+"""
+
+[lessons.exercise]
+id = "e11_error"
+instructions = "Use the `?` operator to propagate the error instead of `unwrap()`."
+starter_code = "fn may_fail() -> Result<i32, String> {\n    let x = \"42\".parse::<i32>().unwrap();\n    Ok(x)\n}\n\nfn main() {\n    println!(\"{}\", may_fail().unwrap());\n}"
+hints = ["Replace `.unwrap()` with `?`"]
+validation = { type = "must_contain_pattern", param = "\\?" }

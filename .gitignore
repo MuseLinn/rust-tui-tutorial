@@ -1,0 +1,12 @@
+/target
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.DS_Store
+Thumbs.db
+.env
+.vscode/
+.idea/
+*.iml
+/data

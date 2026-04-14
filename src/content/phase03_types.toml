@@ -1,0 +1,69 @@
+id = "phase03_types"
+title = "Phase 3: 自定义类型"
+description = "Structs, methods, enums, pattern matching"
+
+[[lessons]]
+id = "l8_structs"
+title = "Structs & Methods"
+content_md = """
+# Structs & Methods
+
+Structs let you create custom types:
+
+```rust
+struct Rectangle {
+    width: u32,
+    height: u32,
+}
+
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+```
+
+`impl` blocks contain methods and associated functions.
+"""
+
+[lessons.exercise]
+id = "e8_structs"
+instructions = "Implement a method `can_hold` that returns true if `self` can contain another `Rectangle`."
+starter_code = "struct Rectangle {\n    width: u32,\n    height: u32,\n}\n\nimpl Rectangle {\n    fn can_hold(&self, other: &Rectangle) -> bool {\n        _____\n    }\n}\n\nfn main() {\n    let r1 = Rectangle { width: 10, height: 5 };\n    let r2 = Rectangle { width: 3, height: 2 };\n    println!(\"{}\", r1.can_hold(&r2));\n}"
+hints = ["Return `self.width > other.width && self.height > other.height`"]
+validation = { type = "must_compile_with_output", param = "true" }
+
+[[lessons]]
+id = "l9_enums"
+title = "Enums & Pattern Matching"
+content_md = """
+# Enums & Pattern Matching
+
+Enums in Rust can carry data:
+
+```rust
+enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+    Write(String),
+}
+```
+
+`Option<T>` is Rust's way of expressing absence without `null`:
+
+```rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+```
+
+Use `match` or `if let` to handle them.
+"""
+
+[lessons.exercise]
+id = "e9_enums"
+instructions = "Use `match` to return `1` for `Some` and `0` for `None`."
+starter_code = "fn plus_one(x: Option<i32>) -> i32 {\n    _____\n}\n\nfn main() {\n    println!(\"{}\", plus_one(Some(5)));\n    println!(\"{}\", plus_one(None));\n}"
+hints = ["`match x { Some(i) => i + 1, None => 0 }`"]
+validation = { type = "must_compile_with_output", param = "6\n0" }

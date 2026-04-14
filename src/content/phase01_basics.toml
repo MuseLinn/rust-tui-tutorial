@@ -1,0 +1,120 @@
+id = "phase01_basics"
+title = "Phase 1: 基础与语法"
+description = "Variables, mutability, functions, primitive types, control flow"
+
+[[lessons]]
+id = "l1_hello"
+title = "Hello World & Cargo"
+content_md = """
+# Hello World
+
+Welcome to Rust! Let's start with the classic `Hello, world!` program.
+
+Every Rust program starts with a `main` function:
+
+```rust
+fn main() {
+    println!("Hello, world!");
+}
+```
+
+`println!` is a **macro** (note the `!`) that prints text to the terminal.
+
+Create a new project with Cargo:
+```bash
+cargo new my_project
+cd my_project
+cargo run
+```
+"""
+
+[lessons.exercise]
+id = "e1_hello"
+instructions = "Fill in the blank to print `Hello, Rust!`."
+starter_code = "fn main() {\n    println!(\"Hello, _____!\");\n}"
+hints = ["The string should be `Rust`."]
+validation = { type = "must_compile_with_output", param = "Hello, Rust!" }
+
+[[lessons]]
+id = "l2_variables"
+title = "Variables & Mutability"
+content_md = """
+# Variables & Mutability
+
+In Rust, variables are **immutable by default**.
+
+```rust
+let x = 5;
+// x = 6; // ERROR!
+```
+
+To make a variable mutable, use `let mut`:
+
+```rust
+let mut x = 5;
+x = 6; // OK
+```
+
+This is Rust's first line of defense against bugs.
+"""
+
+[lessons.exercise]
+id = "e2_mutability"
+instructions = "Make the variable mutable so the code compiles."
+starter_code = "fn main() {\n    let x = 5;\n    x = 6;\n    println!(\"{}\", x);\n}"
+hints = ["Add `mut` after `let`."]
+validation = { type = "must_compile" }
+
+[[lessons]]
+id = "l3_functions"
+title = "Functions & Types"
+content_md = """
+# Functions & Types
+
+Rust requires explicit type annotations for function parameters and return values:
+
+```rust
+fn add(a: i32, b: i32) -> i32 {
+    a + b  // no semicolon = expression (return value)
+}
+```
+
+Statements end with `;`. Expressions without `;` are returned.
+"""
+
+[lessons.exercise]
+id = "e3_functions"
+instructions = "Fix the function to return the sum of two integers."
+starter_code = "fn add(a: i32, b: i32) {\n    a + b;\n}\n\nfn main() {\n    println!(\"{}\", add(2, 3));\n}"
+hints = ["Add `-> i32` return type and remove the semicolon after `a + b`."]
+validation = { type = "must_compile_with_output", param = "5" }
+
+[[lessons]]
+id = "l4_control"
+title = "Control Flow"
+content_md = """
+# Control Flow
+
+`if` is an expression in Rust:
+
+```rust
+let number = if true { 5 } else { 6 };
+```
+
+`match` is exhaustive:
+
+```rust
+match number {
+    1 => println!("one"),
+    2 => println!("two"),
+    _ => println!("other"),
+}
+```
+"""
+
+[lessons.exercise]
+id = "e4_control"
+instructions = "Use `if` as an expression to set `y` to 10 when `x > 5`."
+starter_code = "fn main() {\n    let x = 6;\n    let y = _____;\n    println!(\"{}\", y);\n}"
+hints = ["`let y = if x > 5 { 10 } else { 0 };`"]
+validation = { type = "must_compile_with_output", param = "10" }

@@ -1,0 +1,92 @@
+id = "phase02_ownership"
+title = "Phase 2: Ownership 高墙"
+description = "Ownership, move semantics, references, borrowing"
+
+[[lessons]]
+id = "l5_ownership"
+title = "Ownership & Move Semantics"
+content_md = """
+# Ownership
+
+Ownership is Rust's most unique feature. Every value has a single owner.
+
+```rust
+let s1 = String::from("hello");
+let s2 = s1;  // s1 is MOVED into s2
+// println!("{}", s1); // ERROR! s1 no longer valid
+```
+
+For types that implement `Copy` (like `i32`, `bool`), assignment copies instead of moves:
+
+```rust
+let x = 5;
+let y = x;  // Copy, both valid
+```
+
+**C/C++ trap**: There are no raw pointers or manual `free` in safe Rust.
+"""
+
+[lessons.exercise]
+id = "e5_ownership"
+instructions = "Fix the code by cloning the string so both `s1` and `s2` are valid."
+starter_code = "fn main() {\n    let s1 = String::from(\"hello\");\n    let s2 = s1;\n    println!(\"{}\", s1);\n}"
+hints = ["Use `.clone()` on the string, but remember: in real code, borrowing is usually better!"]
+validation = { type = "must_compile" }
+
+[[lessons]]
+id = "l6_borrowing"
+title = "References & Borrowing"
+content_md = """
+# References & Borrowing
+
+Instead of transferring ownership, you can **borrow**:
+
+```rust
+fn calculate_length(s: &String) -> usize {
+    s.len()
+}
+
+let s1 = String::from("hello");
+let len = calculate_length(&s1);
+// s1 is still valid here!
+```
+
+Rules:
+- One mutable reference `&mut T`, OR
+- Any number of immutable references `&T`
+- But never both at the same time.
+"""
+
+[lessons.exercise]
+id = "e6_borrowing"
+instructions = "Change the function to take a reference so `s` remains valid after the call."
+starter_code = "fn print_string(s: String) {\n    println!(\"{}\", s);\n}\n\nfn main() {\n    let s = String::from(\"hello\");\n    print_string(s);\n    println!(\"{}\", s);\n}"
+hints = ["Change parameter to `&String` and call with `&s`."]
+validation = { type = "must_compile" }
+
+[[lessons]]
+id = "l7_slices"
+title = "Slices"
+content_md = """
+# Slices
+
+A slice is a reference to a contiguous sequence of elements:
+
+```rust
+let s = String::from("hello world");
+let hello = &s[0..5];  // slice of String
+```
+
+String literals are `&str` slices:
+
+```rust
+let s: &str = "hello";  // string slice
+```
+"""
+
+[lessons.exercise]
+id = "e7_slices"
+instructions = "Write a function `first_word` that returns a string slice `\u0026str` from a `\u0026String`."
+starter_code = "fn first_word(s: &String) -> &str {\n    &s[0..1]\n}\n\nfn main() {\n    let s = String::from(\"hello world\");\n    println!(\"{}\", first_word(&s));\n}"
+hints = ["Find the first space and return the slice up to that index."]
+validation = { type = "must_compile_with_output", param = "hello" }

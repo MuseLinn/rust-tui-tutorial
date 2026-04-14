@@ -1,0 +1,123 @@
+id = "phase05_abstractions"
+title = "Phase 5: 抽象与惯用法"
+description = "Generics, traits, iterators, closures, modules, testing"
+
+[[lessons]]
+id = "l12_generics"
+title = "Generics"
+content_md = """
+# Generics
+
+Functions and structs can work with any type:
+
+```rust
+fn largest<T: PartialOrd>(list: &[T]) -> &T {
+    let mut largest = &list[0];
+    for item in list {
+        if item > largest {
+            largest = item;
+        }
+    }
+    largest
+}
+```
+"""
+
+[lessons.exercise]
+id = "e12_generics"
+instructions = "Make the function generic so it works for any type that implements `PartialOrd`."
+starter_code = "fn largest(list: &[i32]) -> &i32 {\n    let mut largest = &list[0];\n    for item in list {\n        if item > largest {\n            largest = item;\n        }\n    }\n    largest\n}\n\nfn main() {\n    let v = vec![1, 5, 3];\n    println!(\"{}\", largest(&v));\n}"
+hints = ["Change signature to `fn largest<T: PartialOrd>(list: &[T]) -> &T`"]
+validation = { type = "must_contain_pattern", param = "PartialOrd" }
+
+[[lessons]]
+id = "l13_traits"
+title = "Traits"
+content_md = """
+# Traits
+
+Traits define shared behavior:
+
+```rust
+trait Summary {
+    fn summarize(&self) -> String;
+}
+
+impl Summary for NewsArticle {
+    fn summarize(&self) -> String {
+        format!("{} by {}", self.headline, self.author)
+    }
+}
+```
+
+Traits are like interfaces in other languages, but more powerful.
+"""
+
+[lessons.exercise]
+id = "e13_traits"
+instructions = "Implement the `Display` trait for `Point` by using the provided `fmt` method."
+starter_code = "use std::fmt;\n\nstruct Point {\n    x: i32,\n    y: i32,\n}\n\nimpl fmt::Display for Point {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        _____\n    }\n}\n\nfn main() {\n    let p = Point { x: 1, y: 2 };\n    println!(\"{}\", p);\n}"
+hints = ["Write `write!(f, \"({}, {})\", self.x, self.y)`"]
+validation = { type = "must_compile_with_output", param = "(1, 2)" }
+
+[[lessons]]
+id = "l14_iterators"
+title = "Iterators & Closures"
+content_md = """
+# Iterators & Closures
+
+Idiomatic Rust uses iterator chains:
+
+```rust
+let v = vec![1, 2, 3];
+let doubled: Vec<i32> = v.iter().map(|x| x * 2).collect();
+```
+
+Closures can capture their environment:
+
+```rust
+let factor = 2;
+let doubled = v.iter().map(|x| x * factor).collect::<Vec<_>>();
+```
+"""
+
+[lessons.exercise]
+id = "e14_iterators"
+instructions = "Use iterator methods to compute the sum of even numbers."
+starter_code = "fn main() {\n    let v = vec![1, 2, 3, 4, 5];\n    let sum: i32 = v.iter()_____;\n    println!(\"{}\", sum);\n}"
+hints = ["Chain `.filter(|x| *x % 2 == 0).sum()`"]
+validation = { type = "must_compile_with_output", param = "6" }
+
+[[lessons]]
+id = "l15_modules"
+title = "Modules & Testing"
+content_md = """
+# Modules & Testing
+
+Organize code with `mod`:
+
+```rust
+mod math {
+    pub fn add(a: i32, b: i32) -> i32 { a + b }
+}
+```
+
+Write tests inline:
+
+```rust
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
+```
+"""
+
+[lessons.exercise]
+id = "e15_modules"
+instructions = "Write a test that asserts `multiply(3, 4)` equals `12`."
+starter_code = "fn multiply(a: i32, b: i32) -> i32 {\n    a * b\n}\n\n#[cfg(test)]\nmod tests {\n    use super::*;\n\n    #[test]\n    fn test_multiply() {\n        _____\n    }\n}"
+hints = ["Use `assert_eq!(multiply(3, 4), 12);`"]
+validation = { type = "must_contain_pattern", param = "assert_eq!" }
