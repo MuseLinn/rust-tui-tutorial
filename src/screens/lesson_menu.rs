@@ -8,7 +8,8 @@ use ratatui::{
 
 pub fn render(app: &App, frame: &mut Frame, area: ratatui::layout::Rect) {
     let block = Block::default()
-        .title(" 课程目录 (Lesson Menu) ")
+        .title(" ╔═ 课程目录 // LESSON_MENU ═╗ ")
+        .title_style(Style::default().fg(Color::Cyan).bold())
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::DarkGray));
 
@@ -20,21 +21,27 @@ pub fn render(app: &App, frame: &mut Frame, area: ratatui::layout::Rect) {
 
     for phase in &app.manifest.phases {
         items.push(ListItem::new(Line::from(Span::styled(
-            format!("📚 {}", phase.title),
-            Style::default().fg(Color::Yellow).bold(),
+            format!("  📡 {}", phase.title),
+            Style::default()
+                .fg(Color::Magenta)
+                .bold()
+                .add_modifier(Modifier::UNDERLINED),
         ))));
 
         for lesson in &phase.lessons {
             let is_selected = flat_index == app.state.menu_selection;
             let is_completed = app.progress.completed_lessons.contains(&lesson.id);
             let marker = if is_completed { " ✓ " } else { "   " };
-            let text = format!("{} {}", marker, lesson.title);
+            let pointer = if is_selected { "▸ " } else { "  " };
+            let text = format!("{}{}{}", pointer, marker, lesson.title);
 
             let style = if is_selected {
                 Style::default()
-                    .bg(Color::DarkGray)
-                    .fg(Color::White)
+                    .bg(Color::Rgb(20, 30, 40))
+                    .fg(Color::Cyan)
                     .add_modifier(Modifier::BOLD)
+            } else if is_completed {
+                Style::default().fg(Color::Green)
             } else {
                 Style::default().fg(Color::White)
             };
@@ -42,6 +49,9 @@ pub fn render(app: &App, frame: &mut Frame, area: ratatui::layout::Rect) {
             items.push(ListItem::new(Line::from(Span::styled(text, style))));
             flat_index += 1;
         }
+
+        // Spacer between phases
+        items.push(ListItem::new(Line::from("")));
     }
 
     let list = List::new(items);

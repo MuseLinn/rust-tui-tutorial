@@ -9,7 +9,9 @@ use ratatui::{
 pub fn update(app: &mut App, action: Action) -> Option<Action> {
     match action {
         Action::Quit => return Some(Action::Quit),
-        Action::Tick => {}
+        Action::Tick => {
+            app.state.frame = app.state.frame.wrapping_add(1);
+        }
         Action::Render => {}
         Action::Resize(_, _) => {}
         Action::Key(key) => {

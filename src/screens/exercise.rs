@@ -34,9 +34,13 @@ pub fn render(app: &App, frame: &mut Frame, area: ratatui::layout::Rect) {
     let [header, instr_area, code_area, result_area] = layout.areas(area);
 
     // Header
-    let header_para = Paragraph::new(format!("练习: {}", ex.id))
-        .block(Block::default().borders(Borders::BOTTOM))
-        .style(Style::default().fg(Color::Yellow).bold());
+    let header_para = Paragraph::new(format!("══ 练习 // EXERCISE: {} ══", ex.id))
+        .block(
+            Block::default()
+                .borders(Borders::BOTTOM)
+                .border_style(Color::Cyan),
+        )
+        .style(Style::default().fg(Color::Cyan).bold());
     frame.render_widget(header_para, header);
 
     // Instructions

@@ -85,6 +85,7 @@ pub struct AppState {
     pub help_visible: bool,
     pub last_error: Option<String>,
     pub menu_selection: usize,
+    pub frame: u64,
 }
 
 impl Default for AppState {
@@ -96,6 +97,7 @@ impl Default for AppState {
             help_visible: false,
             last_error: None,
             menu_selection: 0,
+            frame: 0,
         }
     }
 }

@@ -1,5 +1,5 @@
 use crate::app::App;
-use crate::components::{hint_popup, navigation};
+use crate::components::{glitch_text, hint_popup, navigation};
 use ratatui::{
     layout::{Constraint, Layout},
     style::{Color, Style, Stylize},
@@ -14,6 +14,9 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     // Split area into main content and footer
     let layout = Layout::vertical([Constraint::Min(0), Constraint::Length(1)]);
     let [main_area, footer_area] = layout.areas(area);
+
+    // CRT scanlines overlay (subtle)
+    glitch_text::scanlines_overlay(frame, app.state.frame);
 
     // Render current screen
     match &app.state.screen {
