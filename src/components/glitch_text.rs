@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use ratatui::{
+    layout::Alignment,
     style::{Color, Style},
     text::{Line, Span},
     widgets::Paragraph,
@@ -63,7 +64,7 @@ pub fn glitch_paragraph(
         text_lines.push(Line::from(spans));
     }
 
-    let paragraph = Paragraph::new(text_lines);
+    let paragraph = Paragraph::new(text_lines).alignment(Alignment::Center);
     frame.render_widget(paragraph, area);
 }
 
