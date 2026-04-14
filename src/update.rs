@@ -171,6 +171,9 @@ fn handle_key(app: &mut App, key: crossterm::event::KeyEvent) -> Option<Action> 
 
 fn handle_next_step(app: &mut App) {
     match &mut app.state.screen {
+        Screen::Welcome => {
+            app.state.screen = Screen::LessonMenu;
+        }
         Screen::Lesson {
             phase_id,
             lesson_id,
