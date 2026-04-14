@@ -76,24 +76,3 @@ pub fn flicker_hint(text: &str, tick: u64) -> Paragraph<'_> {
     };
     Paragraph::new(text).style(Style::default().fg(color))
 }
-
-pub fn scanlines_overlay(frame: &mut Frame, tick: u64) {
-    let area = frame.area();
-    let cycle = 6u64;
-    for y in (0..area.height).step_by(3) {
-        let active = (y as u64 + tick).is_multiple_of(cycle);
-        if active {
-            let line = ratatui::layout::Rect {
-                x: 0,
-                y,
-                width: area.width,
-                height: 1,
-            };
-            let span = Span::styled(
-                " ".repeat(area.width as usize),
-                Style::default().bg(Color::Rgb(10, 10, 15)),
-            );
-            frame.render_widget(Paragraph::new(Line::from(span)), line);
-        }
-    }
-}
