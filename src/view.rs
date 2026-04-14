@@ -34,8 +34,17 @@ pub fn render(app: &mut App, frame: &mut Frame) {
         }
     }
 
-    // Footer navigation
-    navigation::render(frame, footer_area);
+    // Footer navigation - contextual hints
+    let nav_hint = match &app.state.screen {
+        crate::models::Screen::Welcome => "[Enter] 开始学习  [q] 退出",
+        crate::models::Screen::LessonMenu => "[↑↓] 选择课程  [Enter] 进入课程  [q] 退出",
+        crate::models::Screen::Lesson { .. } => "[Enter] 继续到练习  [↑↓] 滚动  [q] 退出",
+        crate::models::Screen::Exercise { .. } => {
+            "[Ctrl+R] 运行编译  [Esc] 返回目录  [?] 提示  [q] 退出"
+        }
+        crate::models::Screen::Summary { .. } => "[Enter] 返回目录  [q] 退出",
+    };
+    navigation::render(frame, footer_area, nav_hint);
 
     // Hint popup overlay
     if app.state.popup_visible {

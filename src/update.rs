@@ -138,23 +138,7 @@ fn handle_key(app: &mut App, key: crossterm::event::KeyEvent) -> Option<Action> 
         Screen::Welcome => if key.code == KeyCode::Enter {
             app.state.screen = Screen::LessonMenu;
         },
-        Screen::LessonMenu => if key.code == KeyCode::Enter {
-            let mut flat_index = 0;
-            for phase in &app.manifest.phases {
-                for lesson in &phase.lessons {
-                    if flat_index == app.state.menu_selection {
-                        app.state.screen = Screen::Lesson {
-                            phase_id: phase.id.clone(),
-                            lesson_id: lesson.id.clone(),
-                            step_index: 0,
-                        };
-                        app.state.scroll_offset = 0;
-                        return None;
-                    }
-                    flat_index += 1;
-                }
-            }
-        },
+
         Screen::Exercise { .. } => {
             if let Some(ref mut textarea) = app.textarea {
                 let _ = textarea.input(key);
@@ -174,6 +158,23 @@ fn handle_next_step(app: &mut App) {
         Screen::Welcome => {
             app.state.screen = Screen::LessonMenu;
         }
+        Screen::LessonMenu => {
+            let mut flat_index = 0;
+            for phase in &app.manifest.phases {
+                for lesson in &phase.lessons {
+                    if flat_index == app.state.menu_selection {
+                        app.state.screen = Screen::Lesson {
+                            phase_id: phase.id.clone(),
+                            lesson_id: lesson.id.clone(),
+                            step_index: 0,
+                        };
+                        app.state.scroll_offset = 0;
+                        return;
+                    }
+                    flat_index += 1;
+                }
+            }
+        }
         Screen::Lesson {
             phase_id,
             lesson_id,
@@ -181,15 +182,15 @@ fn handle_next_step(app: &mut App) {
         } => {
             let phase_id = phase_id.clone();
             let lesson_id = lesson_id.clone();
-            let starter = app.manifest.phases.iter()
+            let exercise_info = app.manifest.phases.iter()
                 .find(|p| p.id == phase_id)
                 .and_then(|phase| phase.lessons.iter().find(|l| l.id == lesson_id))
                 .and_then(|lesson| lesson.exercise.as_ref())
-                .map(|ex| ex.starter_code.clone());
+                .map(|ex| (ex.id.clone(), ex.starter_code.clone()));
 
-            if let Some(starter) = starter {
+            if let Some((ex_id, starter)) = exercise_info {
                 app.state.screen = Screen::Exercise {
-                    exercise_id: format!("{}_{}", phase_id, lesson_id),
+                    exercise_id: ex_id,
                     user_code: starter.clone(),
                     compile_result: None,
                 };
@@ -210,7 +211,6 @@ fn handle_next_step(app: &mut App) {
         Screen::Summary { .. } => {
             app.state.screen = Screen::LessonMenu;
         }
-        _ => {}
     }
 }
 
@@ -224,4 +224,96 @@ fn init_textarea(app: &mut App, starter_code: &str) {
     );
     textarea.set_style(Style::default().fg(Color::Cyan));
     app.textarea = Some(textarea);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::app::App;
+    use crate::content;
+    use crate::db::Database;
+    use crate::models::{AppState, UserProgress};
+    use std::collections::HashSet;
+
+    fn test_app() -> App {
+        let manifest = content::load_manifest();
+        let tmp = tempfile::tempdir().unwrap();
+        let db = Database::open(tmp.path().join("test.db")).unwrap();
+        let (action_tx, action_rx) = tokio::sync::mpsc::unbounded_channel();
+        App {
+            state: AppState::default(),
+            manifest,
+            progress: UserProgress {
+                completed_lessons: HashSet::new(),
+                completed_exercises: HashSet::new(),
+                current_phase: String::new(),
+            },
+            db,
+            action_tx,
+            action_rx,
+            textarea: None,
+        }
+    }
+
+    #[test]
+    fn test_welcome_to_lesson_menu() {
+        let mut app = test_app();
+        assert!(matches!(app.state.screen, Screen::Welcome));
+        update(&mut app, Action::NextStep);
+        assert!(matches!(app.state.screen, Screen::LessonMenu));
+    }
+
+    #[test]
+    fn test_lesson_menu_to_lesson() {
+        let mut app = test_app();
+        app.state.screen = Screen::LessonMenu;
+        app.state.menu_selection = 0;
+        update(&mut app, Action::NextStep);
+        match &app.state.screen {
+            Screen::Lesson { phase_id, lesson_id, .. } => {
+                assert_eq!(phase_id, "phase01_basics");
+                assert_eq!(lesson_id, "l1_hello");
+            }
+            _ => panic!("expected Lesson screen, got {:?}", app.state.screen),
+        }
+    }
+
+    #[test]
+    fn test_lesson_to_exercise() {
+        let mut app = test_app();
+        app.state.screen = Screen::Lesson {
+            phase_id: "phase01_basics".into(),
+            lesson_id: "l1_hello".into(),
+            step_index: 0,
+        };
+        update(&mut app, Action::NextStep);
+        match &app.state.screen {
+            Screen::Exercise { exercise_id, .. } => {
+                assert_eq!(exercise_id, "e1_hello");
+            }
+            _ => panic!("expected Exercise screen, got {:?}", app.state.screen),
+        }
+    }
+
+    #[test]
+    fn test_exercise_to_lesson_menu() {
+        let mut app = test_app();
+        app.state.screen = Screen::Exercise {
+            exercise_id: "e1_hello".into(),
+            user_code: "fn main() {}".into(),
+            compile_result: None,
+        };
+        update(&mut app, Action::NextStep);
+        assert!(matches!(app.state.screen, Screen::LessonMenu));
+        assert!(app.progress.completed_exercises.contains("e1_hello"));
+    }
+
+    #[test]
+    fn test_lesson_menu_navigation_down() {
+        let mut app = test_app();
+        app.state.screen = Screen::LessonMenu;
+        assert_eq!(app.state.menu_selection, 0);
+        update(&mut app, Action::ScrollDown);
+        assert_eq!(app.state.menu_selection, 1);
+    }
 }
